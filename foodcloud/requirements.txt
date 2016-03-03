@@ -1,0 +1,15 @@
+Django==1.9.3
+apns==2.0.1
+cffi==1.5.2
+cryptography==1.2.3
+django-fields==0.3.0
+django-push-notifications==1.4.1
+httplib2==0.9.2
+idna==2.0
+oauth2==1.9.0.post1
+pyOpenSSL==0.15.1
+pyasn1==0.1.9
+pycparser==2.14
+pycrypto==2.6.1
+six==1.10.0
+yelp==1.0.1
