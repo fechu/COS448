@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'push_notifications',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -119,3 +120,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+PUSH_NOTIFICATIONS_SETTINGS = {
+        "GCM_API_KEY": "<your api key>",
+        "APNS_CERTIFICATE": os.path.join(BASE_DIR, '../apns-dev-cert.pem'),
+}

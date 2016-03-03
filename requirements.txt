@@ -1,11 +1,12 @@
 Django==1.9.3
-Twisted==15.5.0
+apns==2.0.1
 cffi==1.5.2
 cryptography==1.2.3
+django-fields==0.3.0
+django-ios-notifications==0.2.0
 idna==2.0
 pyOpenSSL==0.15.1
-pyapns==0.4.1
 pyasn1==0.1.9
 pycparser==2.14
+pycrypto==2.6.1
 six==1.10.0
-zope.interface==4.1.3
