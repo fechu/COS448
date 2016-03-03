@@ -1,0 +1,11 @@
+Django==1.9.3
+Twisted==15.5.0
+cffi==1.5.2
+cryptography==1.2.3
+idna==2.0
+pyOpenSSL==0.15.1
+pyapns==0.4.1
+pyasn1==0.1.9
+pycparser==2.14
+six==1.10.0
+zope.interface==4.1.3
