@@ -1,0 +1,41 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+    <form id="changelist-search" method="post">
+    {% csrf_token %}
+        <div><!-- DIV needed for valid HTML -->
+            <label for="searchbar"><img src="/static/admin/img/search.svg" alt="Search"></label>
+            <input placeholder="Name" size="40" name="q" value="{{ query }}" id="searchterm" type="text">
+            <input placeholder="Location" size="40" name="loc" value="{{ location }}" id="searchlocation" type="text">
+            <input value="Search" type="submit">
+        </div>
+    </form>
+
+
+    {% if businesses %}
+    <table width="100%">
+        <thead>
+            <tr>
+                <td>Image</td>
+                <td>Name</td>
+                <td>Address</td>
+                <td>Phone</td>
+                <td>Yelp Page</td>
+                <td>Action</td>
+            </tr>
+        </thead>
+        <tbody>
+        {% for business in businesses %}
+            <tr>
+                <td><img src="{{ business.image_url }}"></td>
+                <td>{{ business.name }}</td>
+                <td>{{ business.location.address|join:", "}}</td>
+                <td>{{ business.phone}}</td>
+                <td><a target="_blank", href="{{ business.url }}">View on Yelp</a></td>
+                <td><a href="{% url 'admin:offers_business_create' %}?business_id={{ business.id }}">Select</a> </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+{% endblock %}

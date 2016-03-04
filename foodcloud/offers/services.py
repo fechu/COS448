@@ -15,19 +15,40 @@ class YelpService(object):
 
         self.client = Client(auth)
 
+        self._business_cache = {}
+
     def get_location(self, yelp_id):
         """
         Get the location of a yelp business
         """
-        response = self.client.get_business(yelp_id)
-        return response.business.location.coordinate
+        business = self._get_business(yelp_id)
+        return business.location.coordinate
 
     def get_name(self, yelp_id):
         """
         Get the name of a location
         """
-        response = self.client.get_business(yelp_id)
-        return response.business.name
+        business = self._get_business(yelp_id)
+        return business.name
+
+    def get_url(self, yelp_id):
+        """
+        Get the url to the yelp side of a business
+        """
+        business = self._get_business(yelp_id)
+        return business.url
+
+    def _get_business(self, yelp_id):
+        if yelp_id in self._business_cache:
+            return self._business_cache[yelp_id]
+        else:
+            response = self.client.get_business(yelp_id)
+            self._business_cache[yelp_id] = response.business
+            return response.business
+
+    def search(self, query, location):
+        response = self.client.search(location=location, term=query)
+        return response.businesses
 
 
 class BusinessService(object):
@@ -53,6 +74,7 @@ class BusinessService(object):
         location = yelp_service.get_location(yelp_id)
         business.latitude = location.latitude
         business.longitude = location.longitude
+        business.url = yelp_service.get_url(yelp_id)
 
         business.name = yelp_service.get_name(yelp_id)
 

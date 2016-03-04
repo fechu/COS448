@@ -13,3 +13,7 @@ client = Client(auth)
 response = client.get_business('d-angelo-italian-market-princeton')
 print(response.business.location.coordinate.latitude)
 print(response.business.location.coordinate.longitude)
+
+response = client.search('italian', 'princeton nj')
+for business in response.businesses:
+    print(business.id)
