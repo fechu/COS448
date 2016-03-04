@@ -38,9 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'push_notifications',
     'commons',
     'offers',
-    'push_notifications',
 ]
 
 MIDDLEWARE_CLASSES = [

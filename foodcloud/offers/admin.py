@@ -1,6 +1,7 @@
 from commons.admin import CommonAdmin
 from django.conf.urls import url
 from django.contrib import admin
+from django.contrib.auth.models import User
 from django.core.checks import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpRequest
@@ -8,16 +9,16 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from offers.models import Offer, Business
 from offers.services import YelpService, BusinessService
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 
+@admin.register(Offer)
 class OfferAdmin(CommonAdmin):
     show_add_button = False
     list_display = ['text', 'user', 'business']
 
 
-admin.site.register(Offer, OfferAdmin)
-
-
+@admin.register(Business)
 class BusinessAdmin(CommonAdmin):
     show_add_button = False
 
@@ -99,4 +100,16 @@ class BusinessAdmin(CommonAdmin):
         return TemplateResponse(request, 'offers/select_yelp_business.html', context=context)
 
 
-admin.site.register(Business, BusinessAdmin)
+class UserAdmin(BaseUserAdmin):
+    list_display = BaseUserAdmin.list_display + ('devices',)
+
+    def devices(self, user):
+        """
+        Args:
+            user (User): The user
+        """
+        return '<a href="">Devices ' + user.user_devices + '</>'
+    devices.allow_tags = True
+
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
