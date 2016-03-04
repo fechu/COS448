@@ -1,6 +1,7 @@
-from offers.models import Business
+from offers.models import Business, Device, Region
 from yelp.client import Client
 from yelp.oauth1_authenticator import Oauth1Authenticator
+from geopy.distance import great_circle
 
 
 class YelpService(object):
@@ -79,6 +80,35 @@ class BusinessService(object):
         business.name = yelp_service.get_name(yelp_id)
 
         return business
+
+
+class DeviceService(object):
+    """
+    Provides serveral services for devices.
+    """
+
+    def devices_for_offer(self, offer):
+        """
+        Get all devices that fullfill all the requirements for an offer.
+        Args:
+            offer (Offer): The offer for which you want all devices.
+
+        Returns: A list of devices.
+
+        """
+        devices = []
+
+        offer_location = offer.get_location()
+        regions = Region.objects.all()
+        for region in regions:
+            distance = great_circle(offer_location, region.get_location()).meters
+
+            # Both, the offer and the user must be in range of each other.
+            if distance <= region.range and distance <= offer.range:
+                devices.append(region.device)
+
+        return devices
+
 
 
 

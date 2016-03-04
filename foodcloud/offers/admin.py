@@ -1,21 +1,46 @@
 from commons.admin import CommonAdmin
 from django.conf.urls import url
 from django.contrib import admin
-from django.contrib.auth.models import User
 from django.core.checks import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpRequest
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
-from offers.models import Offer, Business
-from offers.services import YelpService, BusinessService
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from offers.models import Offer, Business, AppUser, Region, Device
+from offers.services import YelpService, BusinessService, DeviceService
+from push_notifications.admin import DeviceAdmin as BaseDeviceAdmin
+from push_notifications.models import APNSDevice, GCMDevice
+from geopy.distance import great_circle
 
 
 @admin.register(Offer)
 class OfferAdmin(CommonAdmin):
     show_add_button = False
-    list_display = ['text', 'user', 'business']
+    list_display = ['text', 'user', 'business', 'push_notifications']
+    actions = ['send_push_notifications']
+
+    def send_push_notifications(self, request, queryset):
+
+        if queryset.count() > 1:
+            self.message_user(request, 'Can only process one Offer at a time!', level=messages.ERROR)
+
+        offer = queryset.first()
+        if offer.push_notifications is True:
+            self.message_user(request, "Push Notifications already sent!", level=messages.ERROR)
+            return
+
+        devices = DeviceService().devices_for_offer(offer)
+        offer.devices.add(*devices)
+
+        # Send the messages
+        for device in devices:
+            device.send_message(offer.text)
+
+        self.message_user(request, "Sent message to %d devices." % len(devices))
+
+        offer.push_notifications = True
+        offer.save()
+
 
 
 @admin.register(Business)
@@ -100,16 +125,29 @@ class BusinessAdmin(CommonAdmin):
         return TemplateResponse(request, 'offers/select_yelp_business.html', context=context)
 
 
-class UserAdmin(BaseUserAdmin):
-    list_display = BaseUserAdmin.list_display + ('devices',)
+@admin.register(AppUser)
+class AppUserAdmin(admin.ModelAdmin):
+    list_display = ('email', 'devices')
 
     def devices(self, user):
         """
         Args:
-            user (User): The user
+            user (AppUser): The user
         """
-        return '<a href="">Devices ' + user.user_devices + '</>'
+
+        device_ids = map(lambda x: x.registration_id, user.device_set.all())
+        return "<br>".join(device_ids)
     devices.allow_tags = True
 
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
+
+class DeviceAdmin(BaseDeviceAdmin):
+    pass
+
+admin.site.unregister(APNSDevice)
+admin.site.unregister(GCMDevice)
+admin.site.register(APNSDevice, DeviceAdmin)
+
+@admin.register(Region)
+class RegionAdmin(admin.ModelAdmin):
+    pass
+

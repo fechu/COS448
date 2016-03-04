@@ -36,9 +36,11 @@ class Offer(models.Model):
     An offer created by a individual or a company to offer their food.
 
     Attributes:
-        user        The user who created this offer.
-        text        The text the offer should contain.
-        business    An optional business for which the offer is.
+        text                The text the offer should contain.
+        business            An optional business for which the offer is.
+        user                The user who created this offer.
+        push_notifications  Push notifications already sent?
+        range               The range in which push notifications should be sent in meters.
     """
 
     user = models.ForeignKey(
@@ -55,13 +57,27 @@ class Offer(models.Model):
     )
 
     text = models.TextField(max_length=300)
+    push_notifications = models.BooleanField(default=False)
+    range = models.PositiveIntegerField(default=3000)
+
+    # All the devices that got a push notification of this offer.
+    devices = models.ManyToManyField('Device', related_name="offers", blank=True)
+
+    def get_location(self):
+        """
+        Get the location of this offer. This is the same as the location of the business.
+        Returns:
+            The location of the offer.
+        """
+        return self.business.latitude, self.business.longitude
 
 
-class UserDevices(models.Model):
+class AppUser(models.Model):
     """
-    An extension to the user profile which adds devices and regions to the user.
+    A user of our app.
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE,related_name='user_devices', null=True)
+
+    email = models.EmailField()
 
 
 class Device(APNSDevice):
@@ -69,7 +85,7 @@ class Device(APNSDevice):
     A device that we use in this application. Each device can have multiple regions attached.
     """
 
-    user_devices = models.ForeignKey(UserDevices)
+    app_user = models.ForeignKey(AppUser)
 
     def __str__(self):
         return self.registration_id
@@ -90,6 +106,15 @@ class Region(models.Model):
     longitude = models.FloatField()
     latitude = models.FloatField()
     range = models.PositiveIntegerField()
+
+    def get_location(self):
+        """
+        Get the location of this region as a tuple.
+        """
+        return self.latitude, self.longitude
+
+    def __str__(self):
+        return "(%f, %f, %d m)" % (self.latitude, self.longitude, self.range)
 
 
 

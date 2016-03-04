@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.template.response import SimpleTemplateResponse
 
 
 class CommonAdmin(admin.ModelAdmin):
@@ -12,9 +13,10 @@ class CommonAdmin(admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
         response = super(CommonAdmin, self).changelist_view(request, extra_context)
 
-        # Add button actions to the context data
-        response.context_data['button_actions'] = self.get_button_actions()
-        response.context_data['show_add_button'] = self.show_add_button
+        if isinstance(response, SimpleTemplateResponse):
+            # Add button actions to the context data
+            response.context_data['button_actions'] = self.get_button_actions()
+            response.context_data['show_add_button'] = self.show_add_button
 
         return response
 
