@@ -88,6 +88,14 @@ def _deserialize_device_request(data):
     device.app_user = user
     device.save()
 
+    # Small hack: Directly add a region with the princeton area.
+    region = Region()
+    region.device = device
+    region.latitude = 40.349
+    region.longitude = -74.6595306
+    region.range = 10000
+    region.save()
+
     return True
 
 
